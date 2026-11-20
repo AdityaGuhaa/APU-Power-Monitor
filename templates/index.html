@@ -1,0 +1,184 @@
+<!--
+  APU-Power-Monitor - dashboard layout
+  Copyright (c) 2026 Aditya Guha
+  Licensed under the MIT License. See LICENSE in the project root.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time power, utilization and memory telemetry for integrated graphics (APUs)">
+    <title>APU-Power-Monitor</title>
+
+    <link rel="icon" href="/static/img/logo.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-interval-ms="{{ interval_ms }}" data-history-seconds="{{ history_seconds }}">
+
+    <!-- ===== Title bar ===== -->
+    <header class="titlebar">
+        <div class="titlebar-left">
+            <img src="/static/img/logo.svg" alt="" class="titlebar-icon">
+            <span class="titlebar-title">APU Power Monitor</span>
+        </div>
+        <div class="titlebar-right">
+            <span class="provider-chip" id="provider-chip" title="Active telemetry provider">detecting…</span>
+            <span class="connection-dot" id="connection-dot"></span>
+            <span class="connection-text" id="connection-status">Connecting…</span>
+        </div>
+    </header>
+
+    <!-- ===== Device selector (shown only with more than one device) ===== -->
+    <div class="device-bar" id="device-bar">
+        <label for="device-select">Device</label>
+        <select id="device-select"></select>
+    </div>
+
+    <!-- ===== Summary strip ===== -->
+    <div class="summary-strip">
+        <div class="summary-item">
+            <span class="summary-label">Device</span>
+            <span class="summary-value" id="device-name">—</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+            <span class="summary-label">Temperature</span>
+            <span class="summary-value" id="temperature">—</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+            <span class="summary-label">GPU Load</span>
+            <span class="summary-value" id="gpu-util">—</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+            <span class="summary-label">CPU Load</span>
+            <span class="summary-value" id="cpu-util">—</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+            <span class="summary-label">Package Power</span>
+            <span class="summary-value">
+                <span id="power-current" class="val-power">—</span><span id="power-limit" class="val-dim"></span>
+            </span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+            <span class="summary-label">GPU Memory</span>
+            <span class="summary-value">
+                <span id="memory-used" class="val-memory">—</span><span id="memory-total" class="val-dim"></span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ===== Charts ===== -->
+    <main class="main-content">
+        <!-- Power -->
+        <section class="graph-panel" id="panel-power">
+            <div class="graph-panel-header">
+                <div class="graph-panel-title">
+                    <span class="graph-dot dot-power"></span>
+                    Package Power
+                </div>
+                <div class="graph-panel-reading">
+                    <span class="reading-value val-power" id="reading-power">—</span>
+                    <span class="reading-unit">W</span>
+                </div>
+            </div>
+            <div class="graph-area">
+                <canvas id="powerChart"></canvas>
+            </div>
+            <div class="graph-panel-footer">
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Current</span>
+                    <span class="graph-stat-value" id="stat-power">—</span>
+                    <span class="graph-stat-unit">W</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Peak</span>
+                    <span class="graph-stat-value" id="stat-power-peak">—</span>
+                    <span class="graph-stat-unit">W</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Limit</span>
+                    <span class="graph-stat-value" id="stat-power-limit">—</span>
+                    <span class="graph-stat-unit">W</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Usage</span>
+                    <span class="graph-stat-value" id="stat-power-pct">—</span>
+                    <span class="graph-stat-unit">%</span>
+                </div>
+            </div>
+            <div class="unavailable-overlay">
+                <div>
+                    No power sensor on this provider.<br>
+                    On Windows, run LibreHardwareMonitor with its web server enabled;<br>
+                    on Linux, the amdgpu driver reports it directly.
+                </div>
+            </div>
+        </section>
+
+        <!-- Memory -->
+        <section class="graph-panel" id="panel-memory">
+            <div class="graph-panel-header">
+                <div class="graph-panel-title">
+                    <span class="graph-dot dot-memory"></span>
+                    GPU Memory
+                </div>
+                <div class="graph-panel-reading">
+                    <span class="reading-value val-memory" id="reading-memory">—</span>
+                    <span class="reading-unit">GB</span>
+                </div>
+            </div>
+            <div class="graph-area">
+                <canvas id="memoryChart"></canvas>
+            </div>
+            <div class="graph-panel-footer">
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Used</span>
+                    <span class="graph-stat-value" id="stat-memory-used">—</span>
+                    <span class="graph-stat-unit">GB</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Budget</span>
+                    <span class="graph-stat-value" id="stat-memory-total">—</span>
+                    <span class="graph-stat-unit">GB</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">Usage</span>
+                    <span class="graph-stat-value" id="stat-memory-pct">—</span>
+                    <span class="graph-stat-unit">%</span>
+                </div>
+            </div>
+            <div class="unavailable-overlay">
+                <div>No GPU memory sensor on this provider.</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== Provider notes ===== -->
+    <div class="notes" id="notes"></div>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <span id="footer-history">{{ history_seconds }} second history</span>
+        <span>·</span>
+        <span id="footer-interval">{{ interval_ms }} ms refresh</span>
+        <span>·</span>
+        <span id="footer-provider">provider: —</span>
+        <span class="footer-spacer"></span>
+        <span>APU-Power-Monitor v{{ version }}</span>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

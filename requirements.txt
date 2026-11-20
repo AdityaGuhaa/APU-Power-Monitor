@@ -1,0 +1,14 @@
+# Copyright (c) 2026 Aditya Guha
+# Licensed under the MIT License.
+
+flask==3.1.1
+flask-socketio==5.5.1
+
+# Native WebSocket transport for Flask-SocketIO's threading async mode.
+# No eventlet/gevent monkey-patching required: sensor reads happen on a real
+# OS thread, so a slow hardware query can never stall the server loop.
+simple-websocket==1.1.0
+
+# Cross-platform CPU / memory fallback telemetry. Optional: the app degrades
+# gracefully (and says so) if it is not installed.
+psutil==7.0.0

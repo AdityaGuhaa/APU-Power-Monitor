@@ -1,0 +1,18 @@
+<!-- Copyright (c) 2026 Aditya Guha. Licensed under the MIT License. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="APU Power Monitor">
+  <defs>
+    <linearGradient id="apuEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3ddc84"/>
+      <stop offset="1" stop-color="#4fc3f7"/>
+    </linearGradient>
+  </defs>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="12" fill="#070707" stroke="#1f1f1f" stroke-width="1.5"/>
+  <!-- die -->
+  <rect x="17" y="17" width="30" height="30" rx="5" fill="none" stroke="url(#apuEdge)" stroke-width="2"/>
+  <!-- package pins -->
+  <g stroke="#2e2e2e" stroke-width="2" stroke-linecap="round">
+    <path d="M24 17V9M32 17V9M40 17V9M24 47v8M32 47v8M40 47v8M17 24H9M17 32H9M17 40H9M47 24h8M47 32h8M47 40h8"/>
+  </g>
+  <!-- power trace -->
+  <path d="M34.5 23 26 34h6l-2.5 8 8.5-11h-6z" fill="#3ddc84"/>
+</svg>
